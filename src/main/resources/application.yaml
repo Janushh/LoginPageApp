@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: loginbutton
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/loginpage?useSSL=false&serverTimezone=UTC
+    username: root
+    password: qwerty123456
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
