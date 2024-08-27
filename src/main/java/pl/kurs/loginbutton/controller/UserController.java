@@ -3,11 +3,14 @@ package pl.kurs.loginbutton.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.kurs.loginbutton.dto.UserCredentialsDTO;
 import pl.kurs.loginbutton.service.UserService;
 import pl.kurs.loginbutton.user.User;
+import pl.kurs.loginbutton.user.UserDTO;
 
 import java.util.List;
-import java.util.Map;
+
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -17,9 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> credentials) {
-        String login = credentials.get("login");
-        String password = credentials.get("password");
+    public ResponseEntity<String> login(@RequestBody UserCredentialsDTO credentials) {
+        String login = credentials.getLogin();
+        String password = credentials.getPassword();
 
         if (userService.validateLogin(login, password)) {
             return ResponseEntity.ok("okej!");
@@ -29,14 +32,16 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody Map<String, String> credentials) {
-        String login = credentials.get("login");
-        String password = credentials.get("password");
-        return userService.addUser(login, password);
+    public ResponseEntity<UserDTO> register(@RequestBody UserCredentialsDTO credentials) {
+        String login = credentials.getLogin();
+        String password = credentials.getPassword();
+        UserDTO userDTO = userService.addUser(login, password);
+        return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 }
