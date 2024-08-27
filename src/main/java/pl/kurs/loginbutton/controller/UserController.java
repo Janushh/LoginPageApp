@@ -21,10 +21,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserCredentialsDTO credentials) {
-        String login = credentials.getLogin();
-        String password = credentials.getPassword();
-
-        if (userService.validateLogin(login, password)) {
+        if (userService.validateLogin(credentials)) {
             return ResponseEntity.ok("okej!");
         } else {
             return ResponseEntity.status(401).body("źle!!!");
@@ -33,9 +30,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<UserDTO> register(@RequestBody UserCredentialsDTO credentials) {
-        String login = credentials.getLogin();
-        String password = credentials.getPassword();
-        UserDTO userDTO = userService.addUser(login, password);
+        UserDTO userDTO = userService.addUser(credentials);
         return ResponseEntity.ok(userDTO);
     }
 

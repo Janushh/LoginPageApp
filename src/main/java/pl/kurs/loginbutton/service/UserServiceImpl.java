@@ -1,15 +1,16 @@
 package pl.kurs.loginbutton.service;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.kurs.loginbutton.dto.UserCredentialsDTO;
 import pl.kurs.loginbutton.repository.UserRepository;
 import pl.kurs.loginbutton.user.User;
 import pl.kurs.loginbutton.user.UserDTO;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,35 +18,34 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
     @Override
-    public UserDTO addUser(String login, String rawPassword) {
-        String encodedPassword = passwordEncoder.encode(rawPassword);
-        User user = new User(null, login, encodedPassword);
+    public UserDTO addUser(UserCredentialsDTO userCredentialsDTO) {
+        String encodedPassword = passwordEncoder.encode(userCredentialsDTO.getPassword());
+        User user = new User(null, userCredentialsDTO.getLogin(), encodedPassword);
         User savedUser = userRepository.save(user);
-        return mapToDTO(savedUser);
+        return modelMapper.map(savedUser, UserDTO.class);
     }
 
     @Override
-    public Optional<User> findUserByLogin(String login) {
-        return userRepository.findByLogin(login);
+    public Optional<UserDTO> findUserByLogin(String login) {
+        return userRepository.findByLogin(login)
+                .map(user -> modelMapper.map(user, UserDTO.class));
     }
 
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .toList();
     }
 
     @Override
-    public boolean validateLogin(String login, String rawPassword) {
-        return findUserByLogin(login)
-                .map(user -> passwordEncoder.matches(rawPassword, user.getPassword()))
+    public boolean validateLogin(UserCredentialsDTO credentials) {
+        return findUserByLogin(credentials.getLogin())
+                .map(user -> passwordEncoder.matches(credentials.getPassword(), user.getPassword()))
                 .orElse(false);
     }
 
-    private UserDTO mapToDTO(User user) {
-        return new UserDTO(user.getId(), user.getLogin());
-    }
 }
