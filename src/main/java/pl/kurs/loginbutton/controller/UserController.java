@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.kurs.loginbutton.dto.UserCredentialsDTO;
 import pl.kurs.loginbutton.service.UserService;
-import pl.kurs.loginbutton.user.User;
 import pl.kurs.loginbutton.user.UserDTO;
 
 import java.util.List;
