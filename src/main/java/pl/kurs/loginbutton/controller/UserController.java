@@ -18,7 +18,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/login")
+    @PutMapping("/login")
     public ResponseEntity<String> login(@RequestBody UserCredentialsDTO credentials) {
         if (userService.validateLogin(credentials)) {
             return ResponseEntity.ok("okej!");

@@ -2,7 +2,6 @@ package pl.kurs.loginbutton.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.kurs.loginbutton.dto.UserCredentialsDTO;
 import pl.kurs.loginbutton.repository.UserRepository;
@@ -12,18 +11,18 @@ import pl.kurs.loginbutton.user.UserDTO;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.regex.Pattern.matches;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
     @Override
     public UserDTO addUser(UserCredentialsDTO userCredentialsDTO) {
-        String encodedPassword = passwordEncoder.encode(userCredentialsDTO.getPassword());
-        User user = new User(null, userCredentialsDTO.getLogin(), encodedPassword);
+        User user = new User();
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserDTO.class);
     }
@@ -44,8 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean validateLogin(UserCredentialsDTO credentials) {
         return findUserByLogin(credentials.getLogin())
-                .map(user -> passwordEncoder.matches(credentials.getPassword(), user.getPassword()))
+                .map(user -> matches(credentials.getPassword(), user.getPassword()))
                 .orElse(false);
     }
-
 }

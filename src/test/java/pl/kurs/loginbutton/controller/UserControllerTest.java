@@ -19,8 +19,9 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest(UserController.class)
@@ -47,7 +48,7 @@ public class UserControllerTest {
         //when/then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/users/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(credentials)))
+                        .content(objectMapper.writeValueAsString(userDTO)))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("okej!"));
     }
@@ -67,6 +68,30 @@ public class UserControllerTest {
     }
 
     @Test
+    public void testRegister() throws Exception {
+        //given
+        UserCredentialsDTO credentials = new UserCredentialsDTO("newuser", "password123");
+        UserDTO userDTO = new UserDTO(1,"newuser", "password123");
+
+        when(userService.addUser(any(UserCredentialsDTO.class))).thenReturn(userDTO);
+
+        //when/then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(credentials)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1," +
+                        "\"register\":\"newuser\"," +
+                        "\"password\":\"password123\"}"));
+//                .andExpect(jsonPath("$.id").value(1))
+//                .andExpect(jsonPath("$.login").value("newuser"))
+//                .andExpect(jsonPath("$.password").value("password123"));
+
+
+    }
+
+    @Test
     public void getAllUsers() throws Exception {
         //given
         doReturn(List.of(userDTO)).when(userService).getAllUsers();
@@ -80,4 +105,5 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
 }
